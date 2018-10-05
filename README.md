@@ -1,0 +1,2 @@
+# sistemesOperatius
+Pràctica1
