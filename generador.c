@@ -21,8 +21,8 @@ int main(int argc, char *argv[])
 	
 	while( read(0, seed, sizeof(int)) != EOF )
 	{
-			num = rand(seed) % 10;
-			write(1, num, sizeof(int) );
+		num = rand(seed) % 10;
+		write(1, num, sizeof(int) );
 	}
 	close(0);
 	close(1);
