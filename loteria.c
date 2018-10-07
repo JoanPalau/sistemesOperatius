@@ -22,7 +22,7 @@ void generarFills(int pids[NUM_GENERADORS]);
 void tancarFitxersPare(int fds[NUM_GENERADORS*2][2]);
 void tancarFitxers(int fds[NUM_GENERADORS*2][2]);
 void reubicarPipes(int i, int fds[NUM_GENERADORS*2][2]);
-void generarSeeds(int pids[NUM_GENERADORS], int seeds[NUM_GENERADORS]);
+void generarSeeds(int seeds[NUM_GENERADORS]);
 void comunicarSeeds(int seeds[NUM_GENERADORS], int fds[NUM_GENERADORS*2][2];);
 void llegirNum(int fds[NUM_GENERADORS*2][2]);
 
@@ -38,6 +38,7 @@ int main(int argc, char *argv[])
 		int pids[NUM_GENERADORS];
 		int seeds[NUM_GENERADORS];
 		int numero[NUM_GENERADORS];
+		srand(time(0));
 
 		//crear pipes
 		int fds[NUM_GENERADORS*2][2];		//fds[i][0] lectura		fds[i][1] escriptura
@@ -127,10 +128,9 @@ void reubicarPipes(int i, fds[NUM_GENERADORS*2][2])
 	dup(fds[2*i][1]);
 }	
 
-void generarSeeds(int pids[NUM_GENERADORS], int seeds[NUM_GENERADORS])
+void generarSeeds(int seeds[NUM_GENERADORS])
 {
 	int i;
-	srand(time(0));
 	for(i = 0; i < NUM_GENERADORS; i++){
 		seeds[i] = rand();
 	}
