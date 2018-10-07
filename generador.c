@@ -24,5 +24,7 @@ int main(int argc, char *argv[])
 			num = rand(seed) % 10;
 			write(1, num, sizeof(int) );
 	}
+	close(0);
+	close(1);
 	exit(0);
 }
