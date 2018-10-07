@@ -16,24 +16,13 @@ Sergi Simón Balsells
 
 int main(int argc, char *argv[])
 {
-	char *seed;
-	seed = (char*) malloc( sizeof(int) );
+	int seed;
 	int num;
 	
-	while( read(0, *seed, sizeof(int)) != EOF )
+	while( read(0, seed, sizeof(int)) != EOF )
 	{
-		if(*seed == "SIGTERM"){
-			//lliberar memoria i acabar procés
-			free(seed);
-			exit(-1);
-		}
-		else{
 			num = rand(seed) % 10;
 			write(1, num, sizeof(int) );
-		}
 	}
-	
-	//lliberar memoria i acabar procés
-	free(seed);
 	exit(0);
 }
