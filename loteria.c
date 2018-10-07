@@ -13,67 +13,70 @@ Sergi Simón Balsells
 #include<sys/wait.h>
 #include<signal.h>
 #include<time.h>
+#include<string.h>
 
 //Constants
 #define NUM_GENERADORS (int)5
 
 //prototypes
-void generarFills(int pids[NUM_GENERADORS]);
+void generarFills(int pids[NUM_GENERADORS], int fds[NUM_GENERADORS*2][2]);
 void tancarFitxersPare(int fds[NUM_GENERADORS*2][2]);
 void tancarFitxers(int fds[NUM_GENERADORS*2][2]);
 void reubicarPipes(int i, int fds[NUM_GENERADORS*2][2]);
 void generarSeeds(int seeds[NUM_GENERADORS]);
 void comunicarSeeds(int seeds[NUM_GENERADORS], int fds[NUM_GENERADORS*2][2];);
 void llegirNum(int fds[NUM_GENERADORS*2][2]);
-
-
+void closeChilds();
+void finalitzarPipes (int fds[NUM_GENERADORS*2][2]);
 int main(int argc, char *argv[])
 {
 	if (argc != 2) {
-	const char* cadena = "Nombre incorrecte d'arguments";
-	write(0, cadena, strlen(cadena));
+		const char* cadena = "Nombre incorrecte d'arguments";
+		write(0, cadena, strlen(cadena));
 		exit(-1);
 	}
 	else{
 		int pids[NUM_GENERADORS];
 		int seeds[NUM_GENERADORS];
-		int numero[NUM_GENERADORS];
-		srand(time(0));
 
 		//crear pipes
 		int fds[NUM_GENERADORS*2][2];		//fds[i][0] lectura		fds[i][1] escriptura
 		int i;
+		int *num;
+		num = (int *) malloc(sizeof(int));
+		sscanf(argv[1], "%d", num);
+		srand(*num);
+		free(num);
 		for(i = 0; i < 10; i++){
-			if( (pipe(fds[i]) ){
+			if( pipe(fds[i]) ){
 				perror("Error al crear els pipes");
 				exit(-1);
 			}
 		}
+
+		/* Posar bucle per infinit amb tractament de senyals*/
 		
-		generarFills(pids);
+		generarFills(pids, fds);
 
 		tancarFitxersPare(fds);
 
-		generarSeeds(pids, seeds);
+		generarSeeds(seeds);
 
 		comunicarSeeds(seeds);
 
-		//esperar joins
-		wait();
-		wait();
-		wait();
-		wait();
-		wait();
+		llegirNum(fds);
 
-		llegirNums(numero);
+		/* Finalització del bucle infinit */
 
-		imprimirNum(numero);
+		finalitzarPipes(fds);
+
+		closeChilds();
 
 		exit(0);
 	}
 }
 	
-void generarFills(int pids[NUM_GENERADORS])
+void generarFills(int pids[NUM_GENERADORS], int fds[NUM_GENERADORS*2][2])
 {
 	int i;
 	for(i = 0; i < NUM_GENERADORS; i++){
@@ -91,41 +94,51 @@ void generarFills(int pids[NUM_GENERADORS])
 				reubicarPipes(i, fds);
 				//tancar fitxers no necessaris
 
-				tancarFitxersFills(3, limit);
+				tancarFitxers(fds);
 				//canviar execució programa
 				execl("./generador","generador", NULL);
 				exit(-1);
 				break;
 		}
-
 	}
 }
 
 void tancarFitxersPare(int fds[NUM_GENERADORS*2][2])
 {
 	int i = 0;
-	for(i; i < NUM_GENERADORS; i=i+2){
-		close(fds[i][0]);
-		close(fds[i+1][1]);
+	for(i; i < NUM_GENERADORS; i++){
+		close(fds[2*i][1]);
+		close(fds[2*i+1][0]);
 	}
 }
+
+void finalitzarPipes (int fds[NUM_GENERADORS*2][2])
+{
+	int i = 0;
+	for(i; i < NUM_GENERADORS; i++){
+		close(fds[2*i][0]);
+		close(fds[2*i+1][1]);
+	}
+}
+
 //Arreglar, els ha de tancar tots menys els que empra el fill
 void tancarFitxers(int fds[NUM_GENERADORS*2][2])
 {
+	int i;
 	for(i; i < NUM_GENERADORS*2; i=i++) {
 		close(fds[i][0]);
 		close(fds[i][1]);
 	}
 }
 
-void reubicarPipes(int i, fds[NUM_GENERADORS*2][2])
+void reubicarPipes(int i, int fds[NUM_GENERADORS*2][2])
 {
-	//reubicar lectura
-	close(1);
-	dup(fds[2*i+1][0]);
 	//reubicar escriptura
 	close(0);
 	dup(fds[2*i][1]);
+	//reubicar lectura
+	close(1);
+	dup(fds[2*i+1][0]);
 }	
 
 void generarSeeds(int seeds[NUM_GENERADORS])
@@ -136,11 +149,11 @@ void generarSeeds(int seeds[NUM_GENERADORS])
 	}
 }
 
-void comunicarSeeds(int seeds[NUM_GENERADORS], int fds[NUM_GENERADORS*2][2];);
+void comunicarSeeds(int seeds[NUM_GENERADORS], int fds[NUM_GENERADORS*2][2])
 {
 	int i;
 	for(i = 0; i < NUM_GENERADORS; i++){
-		write( fds[i*2+1][1], seeds[i], sizeof(int) );
+		write( fds[i*2+1][1], (const void *) &seeds[i], sizeof(int) );
 	}
 }
 
@@ -148,10 +161,18 @@ void llegirNum(int fds[NUM_GENERADORS*2][2])
 {
 	int i, numero, resultat = 0;
 	for(i = 0; i < NUM_GENERADORS; i++){
-		read(fds[2*i][0], numero, sizeof(int) );
+		read(fds[2*i][0], (void *) &numero, sizeof(int) );
 		resultat = resultat*10 + numero;
 	}
-	write(0, resultat, sizeof(int));
+	write(0, (const void *) &resultat, sizeof(int));
+}
+
+void closeChilds() 
+{
+	int i;
+	for (i=0; i<NUM_GENERADORS; i++) {
+		wait((int *) NULL);
+	}
 }
 
 
