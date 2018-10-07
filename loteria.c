@@ -3,7 +3,7 @@ PRA1 : [TODO]
 Codi font : loteria.c
 
 Joan Palau Oncins
-Sergi
+Sergi Simón Balsells
 ----------------------------------------------------*/
 
 #include<stdio.h>
