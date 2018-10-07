@@ -103,7 +103,7 @@ void generarFills(int pids[NUM_GENERADORS])
 void tancarFitxersPare(int fds[NUM_GENERADORS*2][2])
 {
 	int i = 0;
-	for(i; i <= NUM_GENERADORS; i=i+2){
+	for(i; i < NUM_GENERADORS; i=i+2){
 		close(fds[i][0]);
 		close(fds[i+1][1]);
 	}
