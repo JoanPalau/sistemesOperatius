@@ -95,9 +95,6 @@ void generarFills(int pids[NUM_GENERADORS])
 				execl("./generador","generador", NULL);
 				exit(-1);
 				break;
-				
-			default:
-
 		}
 
 	}
@@ -122,12 +119,12 @@ void tancarFitxers(int fds[NUM_GENERADORS*2][2])
 
 void reubicarPipes(int i, fds[NUM_GENERADORS*2][2])
 {
-	//reubicar escriptura
-	close(0);
-	dup(fds[2*i][1]);
 	//reubicar lectura
 	close(1);
 	dup(fds[2*i+1][0]);
+	//reubicar escriptura
+	close(0);
+	dup(fds[2*i][1]);
 }	
 
 void generarSeeds(int pids[NUM_GENERADORS], int seeds[NUM_GENERADORS])
