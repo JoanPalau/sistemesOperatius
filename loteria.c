@@ -18,30 +18,29 @@ Sergi Simón Balsells
 #define NUM_GENERADORS (int)5
 
 //prototypes
-void generar fills(int* pids);
+void generar fills(int pids[NUM_GENERADORS]);
 void tancarFitxersPare(int i, int limit);
-void tancarFitxersFills(int i, int limit);
-void reubicarPipes(int i);
-void generarSeeds(int* pids, int* seeds);
-void comunicarSeeds(int* seeds);
-void llegirNum(int* numero);
-void imprimirNum(int* numero);
+void tancarFitxers(int fds[NUM_GENERADORS*2][2]);
+void reubicarPipes(int i, int fds[NUM_GENERADORS*2][2]);
+void generarSeeds(int pids[NUM_GENERADORS], int seeds[NUM_GENERADORS]);
+void comunicarSeeds(int seeds[NUM_GENERADORS], int fds[NUM_GENERADORS*2][2];);
+void llegirNum(int fds[NUM_GENERADORS*2][2]);
 
 
 int main(int argc, char *argv[])
 {
-	if (argc != 2){
+	if (argc != 2) {
 	const char* cadena = "Nombre incorrecte d'arguments";
 	write(0, cadena, strlen(cadena));
 		exit(-1);
 	}
 	else{
-		int pids[5];
-		int seeds[5];
-		int numero[5];
+		int pids[NUM_GENERADORS];
+		int seeds[NUM_GENERADORS];
+		int numero[NUM_GENERADORS];
 
 		//crear pipes
-		int fds[10][2];		//fds[i][0] lectura		fds[i][1] escriptura
+		int fds[NUM_GENERADORS*2][2];		//fds[i][0] lectura		fds[i][1] escriptura
 		int i;
 		for(i = 0; i < 10; i++){
 			if( (pipe(fds[i]) ){
@@ -88,7 +87,7 @@ void generarFills(int* pids)
 				exit(-1);
 			case 0:
 				//instruccions fill
-				reubicarPipes(limit);
+				reubicarPipes(i, fds);
 				//tancar fitxers no necessaris
 				limit = limit - 1;
 				tancarFitxersFills(3, limit);
@@ -112,58 +111,48 @@ void tancarFitxersPare(int i, int limit)
 		close(i+1);
 }
 //Arreglar, els ha de tancar tots menys els que empra el fill
-void tancarFitxersFills(int i, int limit)
+void tancarFitxers(int fds[NUM_GENERADORS*2][2])
 {
-		for(i; i < limit; i=i+4){
-		close(i);
-		close(i+3);
+	for(i; i < NUM_GENERADORS*2; i=i++) {
+		close(fds[i][0]);
+		close(fds[i][1]);
+	}
 }
 
-void reubicarPipes(int i)
+void reubicarPipes(int i, fds[NUM_GENERADORS*2][2])
 {
 	//reubicar escriptura
 	close(0);
-	dup(i+1);
+	dup(fds[2*i][0]);
 	//reubicar lectura
 	close(1);
-	dup(i);
+	dup(fds[2*i+1][1]);
 }	
 
-void generarSeeds(int* pids, int* seeds)
+void generarSeeds(int pids[NUM_GENERADORS], int seeds[NUM_GENERADORS])
 {
 	int i;
 	for(i = 0; i < NUM_GENERADORS; i++){
-		*seeds = srand(*pids);
-		seeds++;
-		pids++;
+		seeds[i] = srand(pids[i]);
 	}
 }
 
-void comunicarSeeds(int* seeds)
-{
-	int i;
-	for(i = 6; i <= 22; i = i + 4){
-		write( i, seeds, sizeof(int) );
-		seeds++;
-	}
-}
-
-void llegirNums(int* numero)
-{
-	int i;
-	for(i = 3; i <= 19; i = i + 4){
-		read(i, *numero, sizeof(int) );
-		numero++;
-	}
-}
-
-void imprimirNum(int* numero)
+void comunicarSeeds(int seeds[NUM_GENERADORS], int fds[NUM_GENERADORS*2][2];);
 {
 	int i;
 	for(i = 0; i < NUM_GENERADORS; i++){
-		write(1, *numero, sizeof(int) );
-		numero++;
+		write( fds[i*2+1][1], seeds[i], sizeof(int) );
 	}
-	write(1,"\n", sizeof("\n"));
 }
+
+void llegirNum(int fds[NUM_GENERADORS*2][2])
+{
+	int i, numero, resultat = 0;
+	for(i = 0; i < NUM_GENERADORS; i++){
+		read(fds[2*i][0], numero, sizeof(int) );
+		resultat = resultat*10 + numero;
+	}
+	write(0, resultat, sizeof(int));
+}
+
 
