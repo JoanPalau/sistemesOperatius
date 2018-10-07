@@ -130,8 +130,9 @@ void reubicarPipes(int i, fds[NUM_GENERADORS*2][2])
 void generarSeeds(int pids[NUM_GENERADORS], int seeds[NUM_GENERADORS])
 {
 	int i;
+	srand(time(0));
 	for(i = 0; i < NUM_GENERADORS; i++){
-		seeds[i] = srand(pids[i]);
+		seeds[i] = rand();
 	}
 }
 
