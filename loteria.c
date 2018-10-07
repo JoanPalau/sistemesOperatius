@@ -18,7 +18,7 @@ Sergi Simón Balsells
 #define NUM_GENERADORS (int)5
 
 //prototypes
-void generar fills(int pids[NUM_GENERADORS]);
+void generarfills(int pids[NUM_GENERADORS]);
 void tancarFitxersPare(int i, int limit);
 void tancarFitxers(int fds[NUM_GENERADORS*2][2]);
 void reubicarPipes(int i, int fds[NUM_GENERADORS*2][2]);
@@ -30,8 +30,8 @@ void llegirNum(int fds[NUM_GENERADORS*2][2]);
 int main(int argc, char *argv[])
 {
 	if (argc != 2) {
-	const char* cadena = "Nombre incorrecte d'arguments";
-	write(0, cadena, strlen(cadena));
+		const char* cadena = "Nombre incorrecte d'arguments";
+		write(0, cadena, strlen(cadena));
 		exit(-1);
 	}
 	else{
@@ -72,15 +72,15 @@ int main(int argc, char *argv[])
 	}
 }
 	
-void generarFills(int* pids)
+void generarFills(pids[NUM_GENERADORS])
 {
 	int i;
 	int limit = 4;
 	for(i = 0; i < NUM_GENERADORS; i++){
 
-		*pids = fork();
+		pids[i] = fork();
 		
-		switch( *pids ){
+		switch( pids[i] ){
 			case -1:
 				//error
 				perror("Error creació fill");
@@ -100,7 +100,6 @@ void generarFills(int* pids)
 			
 				limit = limit + 4;
 		}
-		pids++;
 	}
 }
 
