@@ -18,8 +18,8 @@ Sergi Simón Balsells
 #define NUM_GENERADORS (int)5
 
 //prototypes
-void generarfills(int pids[NUM_GENERADORS]);
-void tancarFitxersPare(int i, int limit);
+void generarFills(int pids[NUM_GENERADORS]);
+void tancarFitxersPare(int fds[NUM_GENERADORS*2][2]);
 void tancarFitxers(int fds[NUM_GENERADORS*2][2]);
 void reubicarPipes(int i, int fds[NUM_GENERADORS*2][2]);
 void generarSeeds(int pids[NUM_GENERADORS], int seeds[NUM_GENERADORS]);
@@ -30,8 +30,8 @@ void llegirNum(int fds[NUM_GENERADORS*2][2]);
 int main(int argc, char *argv[])
 {
 	if (argc != 2) {
-		const char* cadena = "Nombre incorrecte d'arguments";
-		write(0, cadena, strlen(cadena));
+	const char* cadena = "Nombre incorrecte d'arguments";
+	write(0, cadena, strlen(cadena));
 		exit(-1);
 	}
 	else{
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 		
 		generarFills(pids);
 
-		tancarFitxersPare(4, limit);
+		tancarFitxersPare(fds);
 
 		generarSeeds(pids, seeds);
 
@@ -72,42 +72,44 @@ int main(int argc, char *argv[])
 	}
 }
 	
-void generarFills(pids[NUM_GENERADORS])
+void generarFills(int pids[NUM_GENERADORS])
 {
 	int i;
-	int limit = 4;
 	for(i = 0; i < NUM_GENERADORS; i++){
 
 		pids[i] = fork();
 		
-		switch( pids[i] ){
+		switch(pids[i]){
 			case -1:
 				//error
 				perror("Error creació fill");
 				exit(-1);
+				break;
 			case 0:
 				//instruccions fill
 				reubicarPipes(i, fds);
 				//tancar fitxers no necessaris
-				limit = limit - 1;
+
 				tancarFitxersFills(3, limit);
 				//canviar execució programa
 				execl("./generador","generador", NULL);
 				exit(-1);
+				break;
 				
 			default:
-				//instruccions pare
-			
-				limit = limit + 4;
+
 		}
+
 	}
 }
 
-void tancarFitxersPare(int i, int limit)
+void tancarFitxersPare(int fds[NUM_GENERADORS*2][2])
 {
-	for(i; i <= limit; i=i+4){
-		close(i);
-		close(i+1);
+	int i = 0;
+	for(i; i <= NUM_GENERADORS; i=i+2){
+		close(fds[i][0]);
+		close(fds[i+1][1]);
+	}
 }
 //Arreglar, els ha de tancar tots menys els que empra el fill
 void tancarFitxers(int fds[NUM_GENERADORS*2][2])
@@ -122,10 +124,10 @@ void reubicarPipes(int i, fds[NUM_GENERADORS*2][2])
 {
 	//reubicar escriptura
 	close(0);
-	dup(fds[2*i][0]);
+	dup(fds[2*i][1]);
 	//reubicar lectura
 	close(1);
-	dup(fds[2*i+1][1]);
+	dup(fds[2*i+1][0]);
 }	
 
 void generarSeeds(int pids[NUM_GENERADORS], int seeds[NUM_GENERADORS])
