@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 
 		tancarFitxersPare(fds);
 
-		generarSeeds(seeds);
+		generarSeeds(seeds,fds);
 
 		comunicarSeeds(seeds);
 
@@ -107,8 +107,8 @@ void generarFills(int pids[NUM_GENERADORS], int fds[NUM_GENERADORS*2][2])
 
 void tancarFitxersPare(int fds[NUM_GENERADORS*2][2])
 {
-	int i = 0;
-	for(i; i < NUM_GENERADORS; i++){
+	int i;
+	for(i = 0; i < NUM_GENERADORS; i++){
 		close(fds[2*i][1]);
 		close(fds[2*i+1][0]);
 	}
@@ -116,8 +116,8 @@ void tancarFitxersPare(int fds[NUM_GENERADORS*2][2])
 
 void finalitzarPipes (int fds[NUM_GENERADORS*2][2])
 {
-	int i = 0;
-	for(i; i < NUM_GENERADORS; i++){
+	int i;
+	for(i = 0; i < NUM_GENERADORS; i++){
 		close(fds[2*i][0]);
 		close(fds[2*i+1][1]);
 	}
@@ -127,7 +127,7 @@ void finalitzarPipes (int fds[NUM_GENERADORS*2][2])
 void tancarFitxers(int fds[NUM_GENERADORS*2][2])
 {
 	int i;
-	for(i; i < NUM_GENERADORS*2; i=i++) {
+	for(i = 0; i < NUM_GENERADORS*2; i++) {
 		close(fds[i][0]);
 		close(fds[i][1]);
 	}
@@ -172,7 +172,7 @@ void llegirNum(int fds[NUM_GENERADORS*2][2])
 void closeChilds() 
 {
 	int i;
-	for (i=0; i<NUM_GENERADORS; i++) {
+	for (i = 0; i<NUM_GENERADORS; i++) {
 		wait((int *) NULL);
 	}
 }
