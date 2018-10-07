@@ -24,7 +24,7 @@ void tancarFitxersPare(int fds[NUM_GENERADORS*2][2]);
 void tancarFitxers(int fds[NUM_GENERADORS*2][2]);
 void reubicarPipes(int i, int fds[NUM_GENERADORS*2][2]);
 void generarSeeds(int seeds[NUM_GENERADORS]);
-void comunicarSeeds(int seeds[NUM_GENERADORS], int fds[NUM_GENERADORS*2][2];);
+void comunicarSeeds(int seeds[NUM_GENERADORS], int fds[NUM_GENERADORS*2][2]);
 void llegirNum(int fds[NUM_GENERADORS*2][2]);
 void closeChilds();
 void finalitzarPipes (int fds[NUM_GENERADORS*2][2]);
@@ -38,15 +38,17 @@ int main(int argc, char *argv[])
 	else{
 		int pids[NUM_GENERADORS];
 		int seeds[NUM_GENERADORS];
-
-		//crear pipes
-		int fds[NUM_GENERADORS*2][2];		//fds[i][0] lectura		fds[i][1] escriptura
-		int i;
+		
 		int *num;
 		num = (int *) malloc(sizeof(int));
 		sscanf(argv[1], "%d", num);
 		srand(*num);
 		free(num);
+
+		//crear pipes
+		int fds[NUM_GENERADORS*2][2];		//fds[i][0] lectura		fds[i][1] escriptura
+		int i;
+
 		for(i = 0; i < 10; i++){
 			if( pipe(fds[i]) ){
 				perror("Error al crear els pipes");
