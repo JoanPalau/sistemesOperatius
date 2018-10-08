@@ -3,7 +3,7 @@ PRA1 : [TODO]
 Codi font : generador.c
 
 Joan Palau Oncins
-Sergi Simón Balsells
+Sergi Simón Balcells
 ----------------------------------------------------*/
 
 #include<stdio.h>
