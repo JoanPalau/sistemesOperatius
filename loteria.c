@@ -19,15 +19,25 @@ Sergi Simón Balcells
 #define NUM_GENERADORS (int)5
 
 //prototypes
-void generarFills(int pids[NUM_GENERADORS], int fds[NUM_GENERADORS*2][2]);
-void tancarFitxersPare(int fds[NUM_GENERADORS*2][2]);
-void tancarFitxers(int fds[NUM_GENERADORS*2][2]);
-void reubicarPipes(int i, int fds[NUM_GENERADORS*2][2]);
-void generarSeeds(int seeds[NUM_GENERADORS]);
-void comunicarSeeds(int seeds[NUM_GENERADORS], int fds[NUM_GENERADORS*2][2]);
-void llegirNum(int fds[NUM_GENERADORS*2][2]);
+void generarFills();
+void tancarFitxersPare();
+void tancarFitxers();
+void reubicarPipes(int i);
+void generarSeeds();
+void llegirNum();
 void closeChilds();
-void finalitzarPipes (int fds[NUM_GENERADORS*2][2]);
+void finalitzarPipes ();
+void init(char *argv[]);
+void end();
+void initsrand(char *argv[]);
+void initPipes();
+void lotto();
+
+
+/* Declare global variables */
+int pids[NUM_GENERADORS];
+int fds[NUM_GENERADORS*2][2];
+
 int main(int argc, char *argv[])
 {
 	if (argc != 2) {
@@ -35,50 +45,63 @@ int main(int argc, char *argv[])
 		write(0, cadena, strlen(cadena));
 		exit(-1);
 	}
-	else{
-		int pids[NUM_GENERADORS];
-		int seeds[NUM_GENERADORS];
-		
-		int *num;
-		num = (int *) malloc(sizeof(int));
-		sscanf(argv[1], "%d", num);
-		srand(*num);
-		free(num);
+	else{	
+		init(argv);
 
-		//crear pipes
-		int fds[NUM_GENERADORS*2][2];		//fds[i][0] lectura		fds[i][1] escriptura
-		int i;
 
-		for(i = 0; i < 10; i++){
-			if( pipe(fds[i]) ){
-				perror("Error al crear els pipes");
-				exit(-1);
-			}
-		}
-
-		/* Posar bucle per infinit amb tractament de senyals*/
-		
-		generarFills(pids, fds);
-
-		tancarFitxersPare(fds);
-
-		generarSeeds(seeds,fds);
-
-		comunicarSeeds(seeds);
-
-		llegirNum(fds);
 
 		/* Finalització del bucle infinit */
+		end()
 
-		finalitzarPipes(fds);
+	}
+}
 
-		closeChilds();
+void lotto() 
+{
+	generarSeeds();
+	llegirNum();
+}
 
-		exit(0);
+void init(char *argv[]) 
+{
+	
+	initsrand(argv);
+	initPipes();		
+	generarFills();
+	tancarFitxersPare();	
+}
+
+void end() 
+{
+	finalitzarPipes();
+	closeChilds();
+	exit(0);
+}
+
+
+void initsrand(char *argv[]) 
+{
+	int *num;
+	num = (int *) malloc(sizeof(int));
+	sscanf(argv[1], "%d", num);
+	srand(*num);
+	free(num);
+}
+
+void initPipes() 
+{
+	//crear pipes
+	//fds[i][0] lectura		fds[i][1] escriptura
+	int i;
+	for(i = 0; i < 10; i++){
+		if( pipe(fds[i]) ){
+			perror("Error al crear els pipes");
+			exit(-1);
+		}
 	}
 }
 	
-void generarFills(int pids[NUM_GENERADORS], int fds[NUM_GENERADORS*2][2])
+void generarFills()
 {
 	int i;
 	for(i = 0; i < NUM_GENERADORS; i++){
@@ -93,10 +116,10 @@ void generarFills(int pids[NUM_GENERADORS], int fds[NUM_GENERADORS*2][2])
 				break;
 			case 0:
 				//instruccions fill
-				reubicarPipes(i, fds);
+				reubicarPipes(i);
 				//tancar fitxers no necessaris
 
-				tancarFitxers(fds);
+				tancarFitxers();
 				//canviar execució programa
 				execl("./generador","generador", NULL);
 				exit(-1);
@@ -105,7 +128,7 @@ void generarFills(int pids[NUM_GENERADORS], int fds[NUM_GENERADORS*2][2])
 	}
 }
 
-void tancarFitxersPare(int fds[NUM_GENERADORS*2][2])
+void tancarFitxersPare()
 {
 	int i;
 	for(i = 0; i < NUM_GENERADORS; i++){
@@ -114,7 +137,7 @@ void tancarFitxersPare(int fds[NUM_GENERADORS*2][2])
 	}
 }
 
-void finalitzarPipes (int fds[NUM_GENERADORS*2][2])
+void finalitzarPipes ()
 {
 	int i;
 	for(i = 0; i < NUM_GENERADORS; i++){
@@ -124,7 +147,7 @@ void finalitzarPipes (int fds[NUM_GENERADORS*2][2])
 }
 
 //Arreglar, els ha de tancar tots menys els que empra el fill
-void tancarFitxers(int fds[NUM_GENERADORS*2][2])
+void tancarFitxers()
 {
 	int i;
 	for(i = 0; i < NUM_GENERADORS*2; i++) {
@@ -133,7 +156,7 @@ void tancarFitxers(int fds[NUM_GENERADORS*2][2])
 	}
 }
 
-void reubicarPipes(int i, int fds[NUM_GENERADORS*2][2])
+void reubicarPipes(int i)
 {
 	//reubicar escriptura
 	close(0);
@@ -143,23 +166,16 @@ void reubicarPipes(int i, int fds[NUM_GENERADORS*2][2])
 	dup(fds[2*i+1][0]);
 }	
 
-void generarSeeds(int seeds[NUM_GENERADORS])
+void generarSeeds()
 {
 	int i;
 	for(i = 0; i < NUM_GENERADORS; i++){
-		seeds[i] = rand();
+		write( fds[i*2+1][1], (const void *) &rand(), sizeof(int) );
+
 	}
 }
 
-void comunicarSeeds(int seeds[NUM_GENERADORS], int fds[NUM_GENERADORS*2][2])
-{
-	int i;
-	for(i = 0; i < NUM_GENERADORS; i++){
-		write( fds[i*2+1][1], (const void *) &seeds[i], sizeof(int) );
-	}
-}
-
-void llegirNum(int fds[NUM_GENERADORS*2][2])
+void llegirNum()
 {
 	int i, numero, resultat = 0;
 	for(i = 0; i < NUM_GENERADORS; i++){
