@@ -10,15 +10,15 @@ Sergi Simón Balcells
 #include<unistd.h>
 #include<stdlib.h>
 #include<sys/types.h>
-#include<sys/wait.h>
 #include<signal.h>
+#include<sys/wait.h>
 #include<time.h>
 #include<string.h>
 
-//Constants
+/* Constants */
 #define NUM_GENERADORS (int)5
 
-//prototypes
+/* prototypes */
 void generarFills();
 void tancarFitxersPare();
 void tancarFitxers();
@@ -28,11 +28,13 @@ void llegirNum();
 void closeChilds();
 void finalitzarPipes ();
 void init(char *argv[]);
-void end();
+void end(int sig);
 void initsrand(char *argv[]);
 void initPipes();
-void lotto();
-
+void lotto(int sig);
+void initSignals();
+void killChild();
+void waitChild();
 
 /* Declare global variables */
 int pids[NUM_GENERADORS];
@@ -41,22 +43,24 @@ int fds[NUM_GENERADORS*2][2];
 int main(int argc, char *argv[])
 {
 	if (argc != 2) {
-		const char* cadena = "Nombre incorrecte d'arguments";
+		const char* cadena = "Nombre incorrecte d'arguments\n";
 		write(0, cadena, strlen(cadena));
 		exit(-1);
 	}
 	else{	
-		init(argv);
+		init(argv); /* Initializes all variables */
+		printf("Initialitzated all variables. Waiting for signal\n");
 
 
-
-		/* Finalització del bucle infinit */
-		end()
-
+		while(1) {
+			printf("\n");
+			pause(); /* Waits or a signal to kill the process, or handle another lotto */
+		}
 	}
+	return -1; /* Si arriba aqui el main vol dir que hi ha un error, ergo -1*/
 }
 
-void lotto() 
+void lotto(int sig) 
 {
 	generarSeeds();
 	llegirNum();
@@ -64,14 +68,18 @@ void lotto()
 
 void init(char *argv[]) 
 {
-	
 	initsrand(argv);
 	initPipes();		
 	generarFills();
-	tancarFitxersPare();	
+	tancarFitxersPare();
+	initSignals();	
 }
 
-void end() 
+void initSignals() {
+	signal(SIGQUIT, lotto);
+	signal(SIGINT, end);
+}
+void end(int sig) 
 {
 	finalitzarPipes();
 	closeChilds();
@@ -90,12 +98,12 @@ void initsrand(char *argv[])
 
 void initPipes() 
 {
-	//crear pipes
-	//fds[i][0] lectura		fds[i][1] escriptura
+	/* crear pipes */
+	/* fds[i][0] lectura		fds[i][1] escriptura */
 	int i;
 	for(i = 0; i < 10; i++){
 		if( pipe(fds[i]) ){
-			perror("Error al crear els pipes");
+			perror("Error al crear els pipes\n");
 			exit(-1);
 		}
 	}
@@ -110,17 +118,17 @@ void generarFills()
 		
 		switch(pids[i]){
 			case -1:
-				//error
-				perror("Error creació fill");
+				/* error */
+				perror("Error creació fill\n");
 				exit(-1);
 				break;
 			case 0:
-				//instruccions fill
+				/* instruccions fill */
 				reubicarPipes(i);
-				//tancar fitxers no necessaris
+				/* tancar fitxers no necessaris */
 
 				tancarFitxers();
-				//canviar execució programa
+				/* canviar execució programa */
 				execl("./generador","generador", NULL);
 				exit(-1);
 				break;
@@ -146,7 +154,7 @@ void finalitzarPipes ()
 	}
 }
 
-//Arreglar, els ha de tancar tots menys els que empra el fill
+/* Arreglar, els ha de tancar tots menys els que empra el fill */
 void tancarFitxers()
 {
 	int i;
@@ -158,10 +166,10 @@ void tancarFitxers()
 
 void reubicarPipes(int i)
 {
-	//reubicar escriptura
+	/* reubicar escriptura */
 	close(0);
 	dup(fds[2*i][1]);
-	//reubicar lectura
+	/* reubicar lectura */
 	close(1);
 	dup(fds[2*i+1][0]);
 }	
@@ -170,7 +178,8 @@ void generarSeeds()
 {
 	int i;
 	for(i = 0; i < NUM_GENERADORS; i++){
-		write( fds[i*2+1][1], (const void *) &rand(), sizeof(int) );
+		int num = rand();
+		write( fds[i*2+1][1], (const void *) &num, sizeof(int) );
 
 	}
 }
@@ -178,19 +187,34 @@ void generarSeeds()
 void llegirNum()
 {
 	int i, numero, resultat = 0;
+	char *msg = (char*) malloc(sizeof(char)*NUM_GENERADORS);
+	
+	sprintf(msg, "%d", resultat);
 	for(i = 0; i < NUM_GENERADORS; i++){
 		read(fds[2*i][0], (void *) &numero, sizeof(int) );
 		resultat = resultat*10 + numero;
 	}
-	write(0, (const void *) &resultat, sizeof(int));
+
+	write(0, msg, sizeof(int));
 }
 
 void closeChilds() 
 {
+	killChild();
+	waitChild();
+}
+
+void waitChild() {
 	int i;
 	for (i = 0; i<NUM_GENERADORS; i++) {
 		wait((int *) NULL);
 	}
 }
 
+void killChild() {
+	int i;
+	for (i = 0; i<NUM_GENERADORS; i++) {
+		kill(pids[i], SIGTERM);
+	}
 
+}

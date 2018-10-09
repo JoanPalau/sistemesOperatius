@@ -14,16 +14,24 @@ Sergi Simón Balcells
 #include<signal.h>
 #include<time.h>
 
+void end(int sig);
+
 int main(int argc, char *argv[])
 {
 	int seed;
 	int num;
-	
-	while( read(0, seed, sizeof(int)) != EOF )
+	signal(SIGTERM, end);
+	while(1)
 	{
-		num = rand(seed) % 10;
-		write(1, num, sizeof(int) );
+		read(0, (void *) &seed, sizeof(int));
+		srand(seed);
+		num = rand() % 10;
+		write(1, (void *) &num, sizeof(int) );
 	}
+	return -1;
+}
+
+void end(int sig) {
 	close(0);
 	close(1);
 	exit(0);
