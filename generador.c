@@ -18,15 +18,18 @@ void end(int sig);
 
 int main(int argc, char *argv[])
 {
-	int seed;
+	int *seed;
 	int num;
 	signal(SIGTERM, end);
 	while(1)
 	{
-		read(0, (void *) &seed, sizeof(int));
-		srand(seed);
+		seed = malloc(sizeof(int));
+		read(0, (void *) seed, sizeof(int));
+		srand(*seed);
 		num = rand() % 10;
-		write(1, (void *) &num, sizeof(int) );
+		sprintf(seed, "%d\n", num);
+		write(1, (void *) seed, strlen(seed) );
+		free(seed);	
 	}
 	return -1;
 }
