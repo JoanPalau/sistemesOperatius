@@ -167,10 +167,10 @@ void tancarFitxers()
 void reubicarPipes(int i)
 {
 	/* reubicar escriptura */
-	close(0);
+	close(1);
 	dup(fds[2*i][1]);
 	/* reubicar lectura */
-	close(1);
+	close(0);
 	dup(fds[2*i+1][0]);
 }	
 
