@@ -16,7 +16,7 @@ Sergi Simón Balcells
 #include<string.h>
 
 /* Constants */
-#define NUM_GENERADORS (int)5
+#define NUM_GENERADORS 5
 
 /* prototypes */
 void generarFills();
@@ -101,7 +101,7 @@ void initPipes()
 	/* crear pipes */
 	/* fds[i][0] lectura		fds[i][1] escriptura */
 	int i;
-	for(i = 0; i < 10; i++){
+	for(i = 0; i < NUM_GENERADORS*2; i++){
 		if( pipe(fds[i]) ){
 			perror("Error al crear els pipes\n");
 			exit(-1);
