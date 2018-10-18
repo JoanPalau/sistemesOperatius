@@ -188,13 +188,11 @@ void llegirNum()
 {
 	int i, numero, resultat = 0;
 	char *msg = (char*) malloc(sizeof(char)*NUM_GENERADORS);
-	
-	sprintf(msg, "%d", resultat);
-	for(i = 0; i < NUM_GENERADORS; i++){
+		for(i = 0; i < NUM_GENERADORS; i++){
 		read(fds[2*i][0], (void *) &numero, sizeof(int) );
 		resultat = resultat*10 + numero;
 	}
-
+	sprintf(msg, "%d", resultat);
 	write(0, msg, sizeof(int));
 }
 
