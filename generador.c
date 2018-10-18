@@ -27,8 +27,7 @@ int main(int argc, char *argv[])
 		read(0, (void *) seed, sizeof(int));
 		srand(*seed);
 		num = rand() % 10;
-		sprintf(seed, "%d\n", num);
-		write(1, (void *) seed, strlen(seed) );
+		write(1, (void *) &num, sizeof(int) );
 		free(seed);	
 	}
 	return -1;
