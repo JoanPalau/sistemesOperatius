@@ -16,7 +16,7 @@ Sergi Simón Balcells
 #include<string.h>
 
 /* Constants */
-#define NUM_GENERADORS (int)5
+#define NUM_GENERADORS 5
 
 /* prototypes */
 void generarFills();
@@ -101,7 +101,7 @@ void initPipes()
 	/* crear pipes */
 	/* fds[i][0] lectura		fds[i][1] escriptura */
 	int i;
-	for(i = 0; i < 10; i++){
+	for(i = 0; i < NUM_GENERADORS*2; i++){
 		if( pipe(fds[i]) ){
 			perror("Error al crear els pipes\n");
 			exit(-1);
@@ -167,10 +167,10 @@ void tancarFitxers()
 void reubicarPipes(int i)
 {
 	/* reubicar escriptura */
-	close(0);
+	close(1);
 	dup(fds[2*i][1]);
 	/* reubicar lectura */
-	close(1);
+	close(0);
 	dup(fds[2*i+1][0]);
 }	
 
@@ -187,14 +187,13 @@ void generarSeeds()
 void llegirNum()
 {
 	int i, numero, resultat = 0;
-	char *msg = (char*) malloc(sizeof(char)*NUM_GENERADORS);
-	
-	sprintf(msg, "%d", resultat);
-	for(i = 0; i < NUM_GENERADORS; i++){
+	char *msg = (char*) malloc(sizeof(char)*(NUM_GENERADORS+1));
+		for(i = 0; i < NUM_GENERADORS; i++){
 		read(fds[2*i][0], (void *) &numero, sizeof(int) );
 		resultat = resultat*10 + numero;
+		printf("Resultat: %d\n Nombre: %d\n", resultat, numero);
 	}
-
+	sprintf(msg, "%d", resultat);
 	write(0, msg, sizeof(int));
 }
 

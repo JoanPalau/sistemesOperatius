@@ -1,6 +1,16 @@
+#compiler
+CC=gcc
+CFLAGS=-pedantic -ansi  -Wall
+
+TARGETS=loteria generador
+
+all: $(TARGETS)
+	
 loteria: loteria.c
-	$gcc -pedantic -ansi  -Wall -o loteria loteria.c
+	$(CC) $(CFLAGS) -o $@ $^
+	
 generador: generador.c
-	$gcc -pedantic -ansi  -Wall -o generador generador.c 
+	$(CC) $(CFLAGS) -o $@ $^
 
-
+clean:
+	rm -f *.o $(TARGETS)
