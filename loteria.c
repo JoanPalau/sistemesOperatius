@@ -36,6 +36,7 @@ void initSignals();
 void killChild();
 void waitChild();
 void guardian(int n, char* msg);
+void guardian1(__sighandler_t sig, char* msg);
 
 #define COLOR "\x1b[33m"
 #define RESET "\x1b[0m"
@@ -74,7 +75,7 @@ void lotto(int sig)
 	write(1, buff, strlen(buff));
 	generarSeeds();
 	llegirNum();
-	signal(SIGQUIT, lotto);
+	guardian1(signal(SIGQUIT, lotto), "Reinstalling sigquit lotto()");
 	/*sprintf(buff, "\t%s[%d] Subscrivint%s\n", COLOR,getpid(), RESET);
 	guardian(write(0, buff, strlen(buff)), "Error en escriure" 
 					       " subscrivint debug");
@@ -91,8 +92,8 @@ void init(char *argv[])
 }
 
 void initSignals() {
-	signal(SIGQUIT, lotto);
-	signal(SIGINT, end);
+	guardian1(signal(SIGQUIT, lotto), "error sigquit initSignals");
+	guardian1(signal(SIGINT, end), "error sigquit initSignals");
 }
 void end(int sig) 
 {
@@ -182,8 +183,8 @@ void tancarFitxers()
 
 void reubicarPipes(int i)
 {
-	/*Clono stdout a 40 per a fer writes del nombre enviat per debugging*/
-	dup2(1,40);
+	/*Clono stdout a 40 per a fer writes del nombre enviat per debugging
+	dup2(1,40);*/
 	/* reubicar escriptura */
 	close(1);
 	dup(fds[2*i][1]);
@@ -256,6 +257,14 @@ void killChild() {
 void guardian(int n, char* msg) {
 	if(n<0){
 		perror(msg);
+		exit(-1);
+	}
+}
+
+void guardian1(__sighandler_t sig, char* msg){
+	if(sig==SIG_ERR){
+		perror(msg);
+		exit(-1);
 	}
 }
 
