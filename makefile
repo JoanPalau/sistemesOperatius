@@ -2,7 +2,7 @@
 CC=gcc
 CFLAGS=-pedantic -ansi  -Wall
 
-TARGETS=loteria generador
+TARGETS=loteria generador codif
 
 all: $(TARGETS)
 	
