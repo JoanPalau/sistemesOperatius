@@ -12,8 +12,9 @@ char *color_end    = "\033[00m";
 int    main()
 {
 	int     estat,i, exitcode;
-	unsigned int llavor;
-	char    *s;
+	/* unsigned int llavor; *
+	 *char    *s; *
+	 * unused variables commented  */
 	pid_t   pid,fpid;
 	char   cadena[100];
 	 
@@ -26,9 +27,11 @@ int    main()
 	if(pid==-1)
 	{
 		/*BLOC 3*/
-		sprintf(cadena,  "%s[%d]  Error  en  l'execució  del  fork.%s\n",
+		sprintf(cadena, "%s[%d]  Error  en  l'execució  del  fork.%s\n",
 			color_blue, getpid(), color_end);
-		write(2, s, strlen(s));
+		write(2, cadena /*s*/, strlen(cadena /*s*/));
+		/* Even thought it's sprintf in "cadena", in question it was
+		 * with the "s". It was changed to */
 		exit(0);
 	}
 	else if(pid==0)

@@ -1,6 +1,6 @@
 #compiler
 CC=gcc
-CFLAGS=-pedantic -ansi  -Wall
+CFLAGS=-pedantic -Wall
 
 TARGETS=loteria generador codif
 
